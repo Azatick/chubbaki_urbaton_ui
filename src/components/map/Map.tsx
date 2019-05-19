@@ -4,7 +4,7 @@ import MarkerClusterGroup from "react-leaflet-markercluster";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import { css } from "@emotion/core";
 import { CircularProgress } from "@material-ui/core";
-import { connect } from "react-redux";
+import isEmpty from "lodash/isEmpty";
 
 import { TileLayer, Marker, Popup } from "react-leaflet";
 import Leaflet, { LatLng } from "leaflet";
@@ -40,8 +40,10 @@ export default class MyMap extends React.Component<MapProps, State> {
 
   async componentDidMount() {
     const position: [number, number] = await this.getGeolocation();
-    // @ts-ignore
-    this.setState({ position });
+    if (!isEmpty(position)) {
+      // @ts-ignore
+      this.setState({ position });
+    }
   }
 
   getGeolocation = async () => {
@@ -57,6 +59,7 @@ export default class MyMap extends React.Component<MapProps, State> {
     } else {
       const { latitude, longitude } = await getGeolocation();
       position = [latitude, longitude];
+      console.log(position);
     }
     // @ts-ignore
     return position;

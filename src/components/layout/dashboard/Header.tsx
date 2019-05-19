@@ -1,6 +1,7 @@
 import React from "react";
 import { RootRef } from "@material-ui/core";
 import { connect } from "react-redux";
+import isEmpty from "lodash/isEmpty";
 
 import { AppBar, Toolbar } from "./Header.elements";
 import { toggleSidebar } from "src/redux/ducks/sidebar";
@@ -23,7 +24,7 @@ const Header = ({ forwardRef, user, openGuide }: HeaderProps) => {
       <AppBar position="static">
         <Toolbar>
           <RecyclingIcon fill="white" width={32} height={32} />
-          {!user ? (
+          {isEmpty(user) ? (
             <Button label="Войти" to="/login" />
           ) : (
             <Button label="Помощник" onClick={openGuide} />
