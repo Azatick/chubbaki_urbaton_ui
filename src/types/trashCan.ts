@@ -2,7 +2,7 @@ import { WasteTakePoint } from "./wasteTakePoint";
 
 export interface TrashCan {
   wasteTakePoint: WasteTakePoint;
-  washCategories: WasteCategory[];
+  wasteCategories: WasteCategory[];
 }
 
 export interface WasteCategory {
@@ -11,7 +11,7 @@ export interface WasteCategory {
   material: MaterialEnum;
 }
 
-enum MaterialEnum {
+export enum MaterialEnum {
   Plastic = 1,
   Carton = 2,
   Paper = 3,

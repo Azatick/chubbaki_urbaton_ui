@@ -4,6 +4,7 @@ import MarkerClusterGroup from "react-leaflet-markercluster";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import { css } from "@emotion/core";
 import { CircularProgress } from "@material-ui/core";
+import { connect } from "react-redux";
 
 import { TileLayer, Marker, Popup } from "react-leaflet";
 import Leaflet, { LatLng } from "leaflet";
@@ -16,9 +17,12 @@ import { WasteTakePoint } from "src/types/wasteTakePoint";
 import "./index.css";
 import { GoogleGeocodingApi } from "src/api/gis";
 import { getGeolocation } from "src/helpers/gis";
+import { AppState } from "src/types/appState";
+import { User } from "src/types/user";
 
 interface MapProps {
   points: WasteTakePoint[];
+  user?: User;
 }
 
 interface State {
@@ -26,7 +30,7 @@ interface State {
   address: any;
 }
 
-export default class extends React.Component<MapProps, State> {
+export default class MyMap extends React.Component<MapProps, State> {
   state: State = {
     position: [55.78874, 49.12214],
     address: {}
@@ -35,13 +39,32 @@ export default class extends React.Component<MapProps, State> {
   map: React.RefObject<any> = React.createRef();
 
   async componentDidMount() {
-    const { latitude, longitude } = await getGeolocation();
-    this.setState({ position: [latitude, longitude] });
+    const position: [number, number] = await this.getGeolocation();
+    // @ts-ignore
+    this.setState({ position });
   }
+
+  getGeolocation = async () => {
+    const { user } = this.props;
+    // @ts-ignore
+    let position: [number, number] = [];
+    if (user) {
+      if (user.currentLocation)
+        position = [
+          user.currentLocation.latitude,
+          user.currentLocation.longitude
+        ];
+    } else {
+      const { latitude, longitude } = await getGeolocation();
+      position = [latitude, longitude];
+    }
+    // @ts-ignore
+    return position;
+  };
 
   handleClickToLocation = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const { latitude, longitude } = await getGeolocation();
+    const [latitude, longitude] = await this.getGeolocation();
     if (this.map.current) {
       this.map.current.leafletElement.panTo(new LatLng(latitude, longitude));
     }
@@ -95,7 +118,6 @@ export default class extends React.Component<MapProps, State> {
             {this.props.points.map(point => {
               const { location } = point;
               const { latitude, longitude } = location;
-              const locationAddress = address[point.id];
               return (
                 <Marker
                   key={point.id}
@@ -113,7 +135,7 @@ export default class extends React.Component<MapProps, State> {
                 >
                   <Popup>
                     <p>{point.name}</p>
-                    {locationAddress ? (
+                    {address[point.id] ? (
                       <p>{address[point.id]}</p>
                     ) : (
                       <CircularProgress

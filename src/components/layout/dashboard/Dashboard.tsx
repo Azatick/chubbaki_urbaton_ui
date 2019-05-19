@@ -21,7 +21,6 @@ export const Dashboard = ({ children }: IDashboardProps) => {
   return (
     <Wrapper>
       <Header ref={ref} />
-      <Sidebar />
       <Content headerHeight={headerHeight}>{children}</Content>
     </Wrapper>
   );

@@ -7,8 +7,21 @@ interface FabProps {
   children: React.ReactNode;
   color?: PropTypes.Color;
   onClick?: React.MouseEventHandler;
+  className?: string;
 }
 
-export default ({ children, onClick, color = "default" }: FabProps) => {
-  return <Fab color={color} onClick={onClick} children={children} />;
+export default ({
+  children,
+  className,
+  onClick,
+  color = "default"
+}: FabProps) => {
+  return (
+    <Fab
+      color={color}
+      className={className}
+      onClick={onClick}
+      children={children}
+    />
+  );
 };

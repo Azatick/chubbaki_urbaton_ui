@@ -12,7 +12,7 @@ import { User } from "src/types/user";
 import { navigate } from "@reach/router";
 
 interface Props {
-  user: User;
+  user?: User;
   login: (userLogin: string) => Promise<void>;
 }
 

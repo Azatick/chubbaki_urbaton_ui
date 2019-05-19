@@ -8,10 +8,10 @@ import {
 import { Menu as MenuIcon } from "@material-ui/icons";
 
 export const AppBar = styled(MAppBar)`
-  background-color: ${({ theme }) => theme.palette.primary.main};
-  box-shadow: none;
+  background-color: ${({ theme }) => theme.palette.primary.main} !important;
+  box-shadow: none !important;
   h6 {
-    color: ${({ theme }) => theme.palette.primary.contrast};
+    color: ${({ theme }) => theme.palette.primary.contrast} !important;
   }
 ` as typeof MAppBar;
 
@@ -22,7 +22,7 @@ export const BurgerButton = styled(props => (
 ))`` as typeof IconButton;
 
 export const Toolbar = styled(MToolbar)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
 ` as typeof MToolbar;

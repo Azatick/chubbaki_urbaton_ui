@@ -2,19 +2,19 @@ import styled from "@emotion/styled";
 import { Fab as MFab } from "@material-ui/core";
 
 export const Fab = styled(MFab)`
-  position: absolute;
-  z-index: 1000;
-  right: 32px;
-  bottom: 32px;
+  position: absolute !important;
+  z-index: 1000 !important;
+  right: 32px !important;
+  bottom: 32px !important;
   ${({ theme, color }: any) => `
     ${
       color === "primary"
         ? `
-        background: ${theme.palette.primary.main};
-        color: white;
+        background: ${theme.palette.primary.main} !important;
+        color: white !important;
         &:hover {
-            background: white;
-            color: ${theme.palette.primary.main};
+            background: white !important;
+            color: ${theme.palette.primary.main} !important;
         }
     `
         : ""
@@ -22,8 +22,8 @@ export const Fab = styled(MFab)`
     ${
       color === "default"
         ? `
-        background: ${theme.palette.light.main};
-        color: ${theme.palette.light.contrast};
+        background: ${theme.palette.light.main} !important;
+        color: ${theme.palette.light.contrast} !important;
     `
         : ""
     }
