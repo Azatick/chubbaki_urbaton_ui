@@ -12,6 +12,7 @@ export default ({ fill, opacity, height = "100%", width = "100%" }: Props) => (
     xmlns="http://www.w3.org/2000/svg"
     width={width}
     height={height}
+    preserveAspectRatio="none"
     fillOpacity={opacity}
     viewBox={`0 0 ${width} ${height}`}
   >

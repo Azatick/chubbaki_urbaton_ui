@@ -5,9 +5,9 @@ import paths from "./paths";
 
 export default () => (
   <Router>
-    {paths.map(pathComponent => {
+    {paths.map((pathComponent, key) => {
       const { component: Component, path } = pathComponent;
-      return React.cloneElement(<Component />, { path });
+      return React.cloneElement(<Component />, { path, key });
     })}
   </Router>
 );

@@ -12,14 +12,13 @@ interface HeaderProps {
   forwardRef?: any;
 }
 
-const Header = ({ toggleSidebar, forwardRef }: HeaderProps) => {
+const Header = ({ forwardRef }: HeaderProps) => {
   return (
     <RootRef rootRef={forwardRef}>
       <AppBar position="static">
         <Toolbar>
-          <BurgerButton onClick={toggleSidebar} />
           <RecyclingIcon fill="white" width={32} height={32} />
-          <Button label="Войти" />
+          <Button label="Войти" to="/login" />
         </Toolbar>
       </AppBar>
     </RootRef>

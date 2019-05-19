@@ -1,40 +1,139 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import ReactDOMServer from "react-dom/server";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import "react-leaflet-markercluster/dist/styles.min.css";
+import { css } from "@emotion/core";
+import { CircularProgress } from "@material-ui/core";
 
-import { TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { Fab } from "@material-ui/core";
-import { Add } from "@material-ui/icons";
+import { TileLayer, Marker, Popup } from "react-leaflet";
+import Leaflet, { LatLng } from "leaflet";
+import { MyLocationTwoTone, WhereToVote } from "@material-ui/icons";
 
 import { Map } from "./Map.elements";
+import Fab from "src/components/ui/Fab";
+import MapWasteTakePoint from "./MapWasteTakePoint";
+import { WasteTakePoint } from "src/types/wasteTakePoint";
+import "./index.css";
+import { GoogleGeocodingApi } from "src/api/gis";
+import { getGeolocation } from "src/helpers/gis";
 
-export default () => {
-  const [position, setPosition] = useState<[number, number]>([
-    55.78874,
-    49.12214
-  ]);
+interface MapProps {
+  points: WasteTakePoint[];
+}
 
-  function getGeolocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        const { coords } = position;
-        setPosition([coords.latitude, coords.longitude]);
-      });
-    } else throw new Error("Геолокация не поддерживается данным браузером.");
+interface State {
+  position: [number, number];
+  address: any;
+}
+
+export default class extends React.Component<MapProps, State> {
+  state: State = {
+    position: [55.78874, 49.12214],
+    address: {}
+  };
+
+  map: React.RefObject<any> = React.createRef();
+
+  async componentDidMount() {
+    const { latitude, longitude } = await getGeolocation();
+    this.setState({ position: [latitude, longitude] });
   }
 
-  useEffect(() => {
-    getGeolocation();
-  }, []);
+  handleClickToLocation = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { latitude, longitude } = await getGeolocation();
+    if (this.map.current) {
+      this.map.current.leafletElement.panTo(new LatLng(latitude, longitude));
+    }
+  };
 
-  return (
-    <Map center={position} zoom={17}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <Fab>
-        <Add />
-      </Fab>
-    </Map>
-  );
-};
+  handleMarkerClick = async (point: WasteTakePoint) => {
+    if (!this.state.address[point.id]) {
+      const { location } = point;
+      const { latitude, longitude } = location;
+      const result = await GoogleGeocodingApi.getAddressByCoord({
+        latitude,
+        longitude
+      });
+      this.setState(({ address }) => ({
+        address: {
+          ...address,
+          [point.id]: result
+        }
+      }));
+    }
+  };
+
+  render() {
+    const { position, address } = this.state;
+    return (
+      <>
+        <Map
+          ref={this.map}
+          preferCanvas={true}
+          center={position}
+          zoom={18}
+          maxZoom={19}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker
+            position={position}
+            icon={Leaflet.divIcon({
+              html: ReactDOMServer.renderToString(
+                <WhereToVote style={{ color: "#e53935" }} />
+              ),
+              iconSize: [20, 20],
+              className: css`
+                background: transparent;
+              ` as any
+            })}
+          />
+          <MarkerClusterGroup>
+            {this.props.points.map(point => {
+              const { location } = point;
+              const { latitude, longitude } = location;
+              const locationAddress = address[point.id];
+              return (
+                <Marker
+                  key={point.id}
+                  onClick={async () => await this.handleMarkerClick(point)}
+                  position={[latitude, longitude]}
+                  icon={Leaflet.divIcon({
+                    html: ReactDOMServer.renderToString(
+                      <MapWasteTakePoint point={point} />
+                    ),
+                    iconSize: [20, 20],
+                    className: css`
+                      background: transparent;
+                    ` as any
+                  })}
+                >
+                  <Popup>
+                    <p>{point.name}</p>
+                    {locationAddress ? (
+                      <p>{address[point.id]}</p>
+                    ) : (
+                      <CircularProgress
+                        size={24}
+                        thickness={4}
+                        style={{ animationDuration: "550ms" }}
+                        disableShrink
+                        variant="indeterminate"
+                      />
+                    )}
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        </Map>
+        <Fab color="primary" onClick={this.handleClickToLocation}>
+          <MyLocationTwoTone />
+        </Fab>
+      </>
+    );
+  }
+}

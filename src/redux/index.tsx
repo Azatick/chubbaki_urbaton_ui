@@ -4,10 +4,9 @@ import { createStore, combineReducers, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 
 import ducks from "./ducks";
-import { AppState } from "src/types/appState";
 
 const create = () =>
-  createStore(combineReducers<AppState>(ducks), applyMiddleware(thunk));
+  createStore(combineReducers(ducks as any), applyMiddleware(thunk));
 
 interface Props {
   children: React.ReactNode;
